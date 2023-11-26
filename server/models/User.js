@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, 'Please provide a valid email']
   },
 
+  phone: {
+    type: String,
+  },
+
   password: {
     type: String,
     required: [true, 'Please provide a password'],
@@ -32,19 +36,33 @@ const userSchema = new mongoose.Schema({
       },
       message: 'Passwords are not the same!'
     }
-  }
+  },
+
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+
+  token: String
 });
 
 userSchema.pre('save', async function(next) {
   if(!this.isModified('password')) return next();
 
   // Hash the password
-  this.password = await bcrypt.hash(this.password, 12);
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
 
   // Delete PasswordConfirm field
   this.passwordConfirm = undefined;
-  next();
 });
+
+// Instance methods
+// Available on all documents in this collection
+userSchema.methods.confirmPassword = async function
+(enteredPassword, dbPassword) {
+  return await bcrypt.compare(enteredPassword, dbPassword);
+};
 
 const User = mongoose.model('User', userSchema);
 

@@ -5,6 +5,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const morgan = require('morgan');
 const xss = require('xss-clean');
 const app = express();
+const userRoutes = require('./routes/userRoute');
 
 // Set security HTTP headers
 app.use(helmet());
@@ -26,6 +27,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
   res.send('Server started...');
 });
+
+app.use('/api/v1/users', userRoutes);
 
 app.all('*', (req, res, next) => {
   console.log(`Can't find ${req.originalUrl} on this server!`);
