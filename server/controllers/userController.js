@@ -1,4 +1,5 @@
 require ('dotenv').config();
+const crypto = require('crypto');
 
 const express = require('express');
 const promisify = require('util').promisify;
@@ -13,13 +14,14 @@ exports.signUp = async (req, res) => {
 
     // Check if password and passwordConfirm match
     if (password !== passwordConfirm) {
-      logger(400, 'Passwords do not match', 'failed', res);
+      return logger(400, 'Passwords do not match', 'failed', res);
     }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      logger(401, 'user already exists', 'failed', res);
+      return logger(401, 'user already exists', 'failed', res);
     }
+
 
     const user = await User.create({
       name,
@@ -34,15 +36,18 @@ exports.signUp = async (req, res) => {
       email: user.email,
       name: user.name,
       token: user.token,
-      subject: 'Email Verification from Cesar Shop'
+      subject: 'Email Verification from Cesar Shop',
+      title: 'Email Confirmation',
+      message: 'If you did not sign up for our service, you can safely ignore this email.',
+      confirmationLink: `http://localhost:4400/api/v1/users/verify?token=${user.token}`
     };
 
     const mail = await sendEmail(options);
 
-    logger(201, user, 'created', res);
+    return logger(201, user, 'created', res);
 
   } catch (error) {
-    logger(500, error.message, 'failed', res);
+    return logger(500, error.message, 'failed', res);
   }
 };
 
@@ -99,4 +104,127 @@ exports.login = async (req, res) => {
   } catch (error) {
     logger(500, error, 'failed', res);
   }
+};
+
+exports.forgotPassword = async(req, res) => {
+  // Get user based on Posted Email
+  const email = req.body.email;
+  const user = await User.findOne({ email });
+  if(!user) {
+    logger(404, 'user not found', 'failed', res);
+  }
+
+  const options = {
+    email: user.email,
+    name: user.name,
+    token:'',
+    subject: 'Password reset from Cesar Shop',
+    title: 'Forgot Password',
+    message: 'If you did not request for a password reset, you can safely ignore this email.'
+  };
+
+  // Generate Random Reset Token
+  const resetToken = await user.createPasswordResetToken();
+
+  await user.save({ validateBeforeSave: false })
+
+  options.confirmationLink= `http://localhost:4400/api/v1/users/resetPassword/:token=${resetToken}`
+
+  try {
+    await sendEmail(options);
+    logger(200, 'token sent to the mail', 'created', res);
+  } catch (error) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false })
+
+    logger(500, 'error sending email, try again', 'failed', res);
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  // Get user based on the token
+  try {
+    const user = await User.findOne({ passwordResetToken: hashedToken });
+    if(!user){
+     return logger(404, 'token expired', 'failed', res);
+    }
+
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+    
+    createSendToken(user, 200, res);
+
+  } catch (error) {
+    logger(500, error, 'failed', res);
+  }
+};
+
+exports.protect = async (req, res, next) => {
+  let token;
+  // Getting the token
+  if(req.headers.authorization && 
+    req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    if(!token) {
+      return logger(401,'You are not logged in! Please log in to get access', 'failed', res)
+    };
+
+    // Verifying the Token
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+    // Check if user still exists
+    const currentUser = await User.findById(decoded.id);
+    if(!currentUser){
+      return logger(401, 'This user does not exist', 'failed', res);
+    };
+
+    // Check if user changed password after jwt was issued
+    if(currentUser.changedPasswordAfter(decoded.iat)) {
+      return logger(401, 'User recently changed password, login again', 'failed', res);
+    }
+
+    // Grant user access
+    req.user = currentUser;
+    next();
+};
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if(!roles.includes(req.user.role)) {
+      return 
+      logger(403,'You do not have permission to perform this action', 'failed', res);
+    };
+
+    next();
+  }
+};
+
+exports.changePassword = async (req, res, next) => {
+  // 1) Get user from collection
+  const user = await User.findById(req.user._id).select('+password');
+
+  // 2) Check if Posted current Password is correct
+  if(!(user.correctPassword(req.body.currentPassword, user.password))) {
+    return
+    logger(401, 'Your current password is wrong.', 'failed', res);
+  }
+
+
+  // 3) If so, update Password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+
+  // 4) Login User
+  createSendToken(user, 200, res)
 };

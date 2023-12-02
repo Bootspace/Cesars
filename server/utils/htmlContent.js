@@ -1,4 +1,4 @@
-const htmlContent = (name, confirmationLink) => {
+const htmlContent = (name, confirmationLink, title, message) => {
   const htmlContent = `
   <!DOCTYPE html>
   <html lang="en">
@@ -44,15 +44,15 @@ const htmlContent = (name, confirmationLink) => {
 
   <body>
       <div class="container">
-          <h1>Email Confirmation</h1>
+          <h1>${title}</h1>
           <p>Dear ${name},</p>
-          <p>Thank you for signing up! Please click the button below to confirm your email address:</p>
+          <p>Thank you for choosing Cesar's shop! <br> Please click the button below to proceed:</p>
 
           <a href="${confirmationLink}" class="confirmation-button">Confirm Email</a>
 
-          <p>If you did not sign up for our service, you can safely ignore this email.</p>
+          <p>${message}</p>
 
-          <p>Best regards,<br>Your Company Name</p>
+          <p>Best regards,<br>Cesars Shop</p>
       </div>
   </body>
   </html>

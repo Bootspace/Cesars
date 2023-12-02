@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
@@ -43,7 +44,10 @@ const userSchema = new mongoose.Schema({
     default: false
   },
 
-  token: String
+  token: String,
+  passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date
 });
 
 userSchema.pre('save', async function(next) {
@@ -57,11 +61,48 @@ userSchema.pre('save', async function(next) {
   this.passwordConfirm = undefined;
 });
 
+userSchema.pre('save', function(next) {
+  if(this.isModified('password') || this.isNew) return next();
+   
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+})
+
 // Instance methods
 // Available on all documents in this collection
 userSchema.methods.confirmPassword = async function
 (enteredPassword, dbPassword) {
   return await bcrypt.compare(enteredPassword, dbPassword);
+};
+
+userSchema.methods.createPasswordResetToken = function() {
+  // 1) Create a resetToken using the crypto module
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  // 2) Hashing the resetToken created above and saving it in the database
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+    
+    // console.log({resetToken}, this.passwordResetToken);
+
+  // 3) Setting the resetToken expiry date
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  // 4) Returning the unhashed resetToken to the user via email
+  return resetToken;
+};
+
+userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
+  if(this.password.passwordChangedAt) {
+    const changedTimestamp = parseInt(this.passwordChangedAt.getTime()/1000, 10);
+    return JWTTimestamp < changedTimestamp
+  }
+
+  // False means not changed
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);

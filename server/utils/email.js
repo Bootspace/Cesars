@@ -12,16 +12,12 @@ const sendEmail = async (options) => {
       pass: process.env.EMAIL_PASSWORD
     }
   });
-  try {
-    const confirmationLink = `http://localhost:4400/api/v1/users/verify?token=${options.token}`;
-
-
-   
+  try {   
     const mailOptions = {
       from: 'Greg Udogu <bootspace.io>',
       to: options.email,
       subject: options.subject,
-      html: htmlContent(options.name, confirmationLink)
+      html: htmlContent(options.name, options.confirmationLink, options.title, options.message)
     };
 
     await transport.sendMail(mailOptions);
