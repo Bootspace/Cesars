@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const express = require('express');
 const promisify = require('util').promisify;
 const User = require('../models/User');
-const { generateToken , createSendToken, logger }= require('../utils/generateToken');
+const { generateToken , createSendToken, logger, filterObj }= require('../utils/generateToken');
 const sendEmail = require('../utils/email');
 const jwt = require('jsonwebtoken');
 
@@ -214,7 +214,7 @@ exports.changePassword = async (req, res, next) => {
   const user = await User.findById(req.user._id).select('+password');
 
   // 2) Check if Posted current Password is correct
-  if(!(user.correctPassword(req.body.currentPassword, user.password))) {
+  if(!(user.confirmPassword(req.body.currentPassword, user.password))) {
     return
     logger(401, 'Your current password is wrong.', 'failed', res);
   }
@@ -228,3 +228,22 @@ exports.changePassword = async (req, res, next) => {
   // 4) Login User
   createSendToken(user, 200, res)
 };
+
+
+
+exports.updateMe = async(req, res) => {
+  // Error if user posts password data for update
+  if(req.body.password || req.body.passwordConfirm) {
+    return logger(400, 'This route is not for password updates.', 'failed', res)};
+
+  // Filter out unwanted fieldnames that are not allowed to be updated
+  const newBody = filterObj(req.body, "name", "email");
+  
+  // Update User Document
+  const updatedUser = await User.findByIdAndUpdate(req.user.id, newBody, {
+    new: true,
+    runValidators: true
+  });
+
+  return logger(200, updatedUser, 'success', res);
+  }

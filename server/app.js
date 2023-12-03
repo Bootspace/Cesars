@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const xss = require('xss-clean');
 const app = express();
 const userRoutes = require('./routes/userRoute');
+const productRoutes = require("./routes/productRoutes");
 
 // Set security HTTP headers
 app.use(helmet());
@@ -29,6 +30,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/products', productRoutes);
 
 app.all('*', (req, res, next) => {
   console.log(`Can't find ${req.originalUrl} on this server!`);

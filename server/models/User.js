@@ -16,6 +16,12 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, 'Please provide a valid email']
   },
 
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: 'user'
+  },
+
   phone: {
     type: String,
   },
@@ -25,6 +31,10 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide a password'],
     minlength: 8,
     select: false
+  },
+
+  address: {
+    type: String
   },
 
   passwordConfirm: {
@@ -96,7 +106,7 @@ userSchema.methods.createPasswordResetToken = function() {
 };
 
 userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
-  if(this.password.passwordChangedAt) {
+  if(this.passwordChangedAt) {
     const changedTimestamp = parseInt(this.passwordChangedAt.getTime()/1000, 10);
     return JWTTimestamp < changedTimestamp
   }

@@ -1,4 +1,5 @@
 require('dotenv').config();
+const fs = require('fs');
 
 const jwt = require('jsonwebtoken');
 const JWTSECRET = process.env.JWT_SECRET;
@@ -51,3 +52,22 @@ exports.createSendToken = (user, statusCode, res) => {
   })
 };
 
+exports.filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach(el => {
+    if(allowedFields.includes(el)) newObj[el] = obj[el]
+  });
+
+  return newObj;
+};
+
+exports.deleteFile = (filePath) => {
+  fs.unlink(filePath, (err) => {
+    if(err){
+      return console.error(`Error deleting file ${filePath}: ${err.message}`);
+    }
+    else {
+      console.log(`File ${filePath} deleted succesfully.`);
+    }
+  })
+};
