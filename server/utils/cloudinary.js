@@ -24,3 +24,14 @@ exports.cloudUpload = async (file) => {
     return res.status(500).json(error.message);
   }
 }
+
+exports.cloudDelete = async (files) => {
+  try {
+    for (const file in files) {
+      await cloudinary.uploader.destroy(file)
+    }
+    
+  } catch (error) {
+    return res.status(500).json(error.message);
+  }
+}

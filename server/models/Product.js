@@ -3,13 +3,7 @@ const productSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please enter the name of this product"]
-  },
-
-  size: {
-    type: String,
-    enum: [ "xs", "s", "m", "l","xl"],
-    default: "m"
-  },  
+  }, 
 
   category: {
     type: String,
@@ -36,7 +30,9 @@ const productSchema = new mongoose.Schema({
     required: [true, "Please enter a price for this product"],
     default: 1
   } 
-});
+},
+{ timestamps: true }
+);
 
 const Product = mongoose.model('Product', productSchema);
 
