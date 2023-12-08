@@ -7,6 +7,7 @@ const xss = require('xss-clean');
 const app = express();
 const userRoutes = require('./routes/userRoute');
 const productRoutes = require("./routes/productRoutes");
+const orderRoutes = require("./routes/orderRoute");
 
 // Set security HTTP headers
 app.use(helmet());
@@ -31,6 +32,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/orders', orderRoutes);
 
 app.all('*', (req, res, next) => {
   console.log(`Can't find ${req.originalUrl} on this server!`);

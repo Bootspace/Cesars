@@ -32,7 +32,10 @@ exports.uploadPhotos = async(req, res) => {
     for(const file of req.files) {
       const imageUrl = await cloudUpload(file.path);
       imageUrls.push(imageUrl);
-      product.photoUrl.push(imageUrl);
+      product.photoUrl.push({
+        secureUrl: imageUrl.secureUrl,
+        publicId: imageUrl.publicId
+      });
       deleteFile(file.path);
     }
     await product.save();
@@ -116,7 +119,8 @@ exports.updateProduct = async (req, res) => {
     if(!update) {
       return logger(404, 'Product not found', 'failed', res);
     }
-  
+    
+    await client.set(id, JSON.stringify(update));
     return logger(200, 'Product updated', 'success', res);
   } catch (error) {
     return logger(500, error, 'failed', res);
@@ -133,12 +137,11 @@ exports.deleteProduct = async (req, res) => {
       return logger(404, 'Product not found', 'failed', res);
     };
 
+    await client.del(req.params.id)
     const files = product.photoUrl;
 
     if(files.length > 0) {
       await cloudDelete(files);
-      await product.deleteOne();
-      return logger(203, 'Product deleted', 'success', res);
     }
     await product.deleteOne();
     return logger(203, 'Product deleted', 'success', res);

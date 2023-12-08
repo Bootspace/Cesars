@@ -1,0 +1,86 @@
+[
+  {
+    "name":"Oraimo 234HC",
+    "category":"headset",
+    "price": 23000.00,
+    "description":"A wireless headset"
+  },
+
+  {
+    "name":"Beats 187",
+    "category":"headset",
+    "price": 25900.00,
+    "description":"A wireless headset"
+  },
+
+  {
+    "name":"HP Elitebook 2000c",
+    "category":"computers",
+    "price": 250000.00,
+    "description":"A waterproof touchscreen"
+  },
+
+  {
+    "name":"Lenovo Thinkpad",
+    "category":"computers",
+    "price": 1250000.00,
+    "description":"A touchscreen"
+  },
+
+  {
+    "name":"Dell Inspiron",
+    "category":"computers",
+    "price": 400000.00,
+    "description":"Battery Superpower"
+  },
+
+  {
+    "name":"MacBook Pro",
+    "category":"computers",
+    "price": 1000000.00,
+    "description":"A waterproof touchscreen"
+  },
+
+
+  {
+    "name":"Iwatch",
+    "category":"smartwatch",
+    "price": 78000.00,
+    "description":"A waterproof touchscreen"
+  },
+
+  {
+    "name":"Oraimo series 345",
+    "category":"smartwatch",
+    "price": 90000.00,
+    "description":"A waterproof device"
+  },
+
+  {
+    "name":"Nimbuzz",
+    "category":"smartwatch",
+    "price": 110000.00,
+    "description":"A waterproof touchscreen"
+  },
+
+  {
+    "name":"Yamaha Zoom Lens",
+    "category":"camera",
+    "price": 300000.00,
+    "description":"Unbelievably clear"
+  },
+
+  {
+    "name":"Yashica Lens",
+    "category":"camera",
+    "price": 250000.00,
+    "description":"Lens on steroids"
+  },
+
+  {
+    "name":"Sony Power",
+    "category":"camera",
+    "price": 500000.00,
+    "description":"Zoom machine"
+  }
+]

@@ -16,7 +16,11 @@ exports.cloudUpload = async (file) => {
       folder: 'cesars'
     });
 
-    const imageUrl = result.secure_url;
+    console.log(result);
+    const imageUrl = {
+      secureUrl: result.secure_url,
+      publicId: result.public_id
+    }
 
     return imageUrl;
     
@@ -27,9 +31,11 @@ exports.cloudUpload = async (file) => {
 
 exports.cloudDelete = async (files) => {
   try {
-    for (const file in files) {
+    for (const file of files) {
       await cloudinary.uploader.destroy(file)
     }
+
+    console.log('Image deleted');
     
   } catch (error) {
     return res.status(500).json(error.message);

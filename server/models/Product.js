@@ -16,9 +16,16 @@ const productSchema = new mongoose.Schema({
     required: [true, "Please enter a description for this product"]
   },
 
-  photoUrl: [{
-    type: String
-  }],
+  photoUrl: [
+    {
+      secureUrl: {
+        type: String,
+      },
+      publicId: {
+        type: String,
+      },
+    },
+  ],
 
   stars: {
     type: Number,
