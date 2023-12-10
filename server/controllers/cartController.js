@@ -57,5 +57,35 @@ exports.AddToCart = async (req, res) => {
   }
 };
 
+// Get User's Cart
+exports.getCart = async(req, res) => {
+  const user = req.user;
+  try {
+    let cart = await Cart.findOne({ user });
+    if(!cart) {
+      return logger(404, 'no cart for this user', 'failed', res);
+    }
 
+    return logger(200, cart, 'success', res);
 
+  } catch (error) {
+    return logger(500, error, 'failed', res);
+  }
+};
+
+// update User's cart
+exports.updatecart = async (req, res) => {
+  const user = req.user;
+  try {
+    const updatedCart = await Cart.findById(req.params.id, 
+      { $set: req.body },
+      { new: true }
+    );
+
+    return logger(200, updatedCart, 'success', res);
+  } catch (error) {
+    logger(500, error, 'failed', res);
+  }
+};
+
+exports.checkout = async ();
