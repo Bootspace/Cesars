@@ -9,7 +9,7 @@ const CartSchema = new mongoose.Schema({
     required: true
   },
 
-  products: [
+  items: [
     {
       productId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -21,9 +21,30 @@ const CartSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 1
+      },
+
+      price: {
+        type: Number,
+        default: 0
+      },
+
+      name:{
+        type: String
       }
     }
   ],
+
+  totalQty: {
+    type: Number,
+    default: 0,
+    required: false
+  },
+
+  totalCost: {
+    type: Number,
+    default: 0,
+    required: false
+  },
 },
 { timestamps: true }
 );
