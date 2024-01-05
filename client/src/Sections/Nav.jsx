@@ -1,8 +1,10 @@
 import { IoIosHeartEmpty } from "react-icons/io";
 import { IoCartOutline, } from "react-icons/io5";
 import InputField from "../Components/InputField";
+import {useLocation} from 'react-router-dom';
 
 const Nav = () => {
+  const location = useLocation();
   return (
     <nav className="border flex justify-between items-center px-20 py-4 min-w-[1100px]">
         <div className="flex gap-20 items-center max-xl:gap-12">
@@ -13,14 +15,14 @@ const Nav = () => {
             </summary>
             <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
               <li><a href="/" className="hover:underline decoration-solid">Home</a></li>
-              <li><a href="/" className="hover:underline decoration-solid">Contact</a></li>
-              <li> <a href="/" className="hover:underline decoration-solid">About</a></li>
+              <li><a href="/contact" className="hover:underline hover:decoration-solid">Contact</a></li>
+              <li><a href="/" className="hover:underline decoration-solid">About</a></li>
               <li><a href="/" className="hover:underline decoration-solid">Sign Up</a></li>
             </ul>
           </details>
           <div className="flex gap-20 text-lg font-light max-xl:hidden ">
-            <a href="/" className="hover:underline decoration-solid">Home</a>
-            <a href="/" className="hover:underline decoration-solid">Contact</a>
+            <a href="/" className={(location.pathname === '/' ? 'underline decoration-solid' : 'hover:underline hover:decoration-solid')}>Home</a>
+            <a href="/contact" className={(location.pathname === '/contact' ? 'underline decoration-solid' : 'hover:underline hover:decoration-solid')}>Contact</a>
             <a href="/" className="hover:underline decoration-solid">About</a>
             <a href="/" className="hover:underline decoration-solid">Sign Up</a>
           </div>

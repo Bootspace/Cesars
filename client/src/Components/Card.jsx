@@ -45,9 +45,9 @@ const Card = (props) => {
         
         <section>
             <h1>Lorem ipsum 1</h1>
-            <section className="flex">
-                <h1>${/*Money*/}$Test</h1>
-                <h1>$$Test2</h1>
+            <section className="flex gap-2 items-center">
+                <h1 className="text-red-500">$120</h1>
+                <h1 className="text-gray-400 text-sm line-through">$200</h1>
             </section>
             <section>
               <div className="flex items-center">
